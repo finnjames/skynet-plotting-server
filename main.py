@@ -1,14 +1,15 @@
 import os
 from flask import Flask, json, request, render_template
 
-# from flask_cors import CORS
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import numpy as np
 import ast
 
 api = Flask(__name__)
-# CORS(api)
+CORS(api)
 
+# CLUSTER
 
 cols = [
     "junk",
@@ -77,8 +78,29 @@ def get_data():
     return json.dumps(find_data_in_files(age, metallicity, filters))
 
 
+# GRAVITATIONAL WAVES
+
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
+
+
+@api.route("/upload")
+def upload():
+    return render_template("upload.html")
+
+
+@api.route("/uploader", methods=["GET", "POST"])
+def uploader():
+    if request.method == "POST":
+        f = request.files["file"]
+
+        # TODO: don't save it, honestly
+        f.save(os.path.join(UPLOAD_FOLDER, secure_filename(f.filename)))
+
+        return "File upload successful", 201
+
+
 def main():
-    api.run()
+    api.run(debug=True)
 
 
 if __name__ == "__main__":
